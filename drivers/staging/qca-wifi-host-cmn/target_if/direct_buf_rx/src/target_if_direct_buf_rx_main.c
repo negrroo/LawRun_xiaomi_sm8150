@@ -720,6 +720,11 @@ static void *target_if_dbr_vaddr_lookup(
 
 	dbr_buf_pool = mod_param->dbr_buf_pool;
 
+	if (cookie >= mod_param->dbr_ring_cfg->num_ptr) {
+		direct_buf_rx_err("invalid cookie %d", cookie);
+		return NULL;
+	}
+
 	if (dbr_buf_pool[cookie].paddr == paddr) {
 		return dbr_buf_pool[cookie].vaddr +
 				dbr_buf_pool[cookie].offset;
@@ -936,6 +941,11 @@ static QDF_STATUS target_if_dbr_deinit_ring(struct wlan_objmgr_pdev *pdev,
 	if (!psoc) {
 		direct_buf_rx_err("psoc is null");
 		return QDF_STATUS_E_FAILURE;
+	}
+
+	if (cookie >= mod_param->dbr_ring_cfg->num_ptr) {
+		direct_buf_rx_err("invalid cookie %d", cookie);
+		return QDF_STATUS_E_INVAL;
 	}
 
 	dbr_psoc_obj = wlan_objmgr_psoc_get_comp_private_obj(psoc,
